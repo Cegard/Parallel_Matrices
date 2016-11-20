@@ -1,19 +1,9 @@
 #include <cuda.h>
-#include <cuda_runtime.h>
+#include <cuda_runtime.h
 #include <stdlib.h>
 #include <stdio.h>
-#include <string>
 
 #define MATRIX_DIM 10
-
-/*
-__global__ getCell(double *row, double *col, length){
-    
-    int i = threadIdx.x;
-    
-    
-}
-*/
 
 
 __host__ double* createArrayWithRandoms(){
