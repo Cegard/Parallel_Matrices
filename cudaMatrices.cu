@@ -1,87 +1,34 @@
-#include <thrust/host_vector>
-#include <thrust/device_vector>
-#include <thrust/generate>
-#include <thrust/copy>
+#include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
+#include <thrust/generate.h>
+#include <thrust/copy.h>
+#include <thrust/transform.h>
+#include <thrust/functional.h>
 #include <stdlib.h>
 #include <stdio.h>
 
 #define MATRIX_DIM 10
 
-
-__host__ double* createArrayWithRandoms(){
-    double *matrix = (double *) malloc(MATRIX_DIM * sizeof(double));
-    
-    for (int i = 0; i < MATRIX_DIM; i++)
-        *(matrix + i) = (10.0*rand()/(RAND_MAX+1.0));
-    
-    return matrix;
-}
-
-
-__global__ void addArrays(double *a, double *b, double *c, int length){
-    int i = blockDim.x * blockIdx.x + threadIdx.x;
-    
-    if (i < length)
-        *(c + i) = *(a + i) + *(b + i);
-}
-
-
-__host__ void checkError(cudaError_t error, const char *point){
-    
-    if (error != cudaSuccess){
-        printf("there was an error at %s, error code: %d", point, error);
-        exit(EXIT_FAILURE);
-    }
-}
-
-
 __host__ static __inline__ double rand_01()
 {
-    return (10.0*rand()/(RAND_MAX+1.0));
+    return (double) (10.0*rand()/(RAND_MAX+1.0));
 }
 
 
 int main(){
+    thrust::host_vector<double> h_a(MATRIX_DIM), h_b(MATRIX_DIM), h_c(MATRIX_DIM);
+    thrust::generate(h_a.begin(), h_a.end(), rand_01);
+    thrust::generate(h_b.begin(), h_b.end(), rand_01);
     
-    cudaError_t error = cudaSuccess;
-    size_t size = MATRIX_DIM * sizeof(double);
-    //double *h_a = createArrayWithRandoms();
-    thrust::host_vector<double> h_a(MATRIX_DIM);
-    //double *h_b = createArrayWithRandoms();
-    thrust::host_vector<double> h_b(MATRIX_DIM);
-    //double *h_c = (double *) malloc(MATRIX_DIM * sizeof(double));
-    thrust::host_vector<double> h_c(MATRIX_DIM);
-    double *d_a , *d_b, *d_c;
-    
-    error = cudaMalloc(&d_a, size);
-    checkError(error, "allocating device memory for A");
-    error = cudaMalloc(&d_b, size);
-    checkError(error, "allocating device memory for B");
-    error = cudaMalloc(&d_c, size);
-    checkError(error, "allocating device memory for C");
-    
-    cudaMemcpy(d_a, h_a, size, cudaMemcpyHostToDevice);
-    checkError(error, "copy A from host to device");
-    cudaMemcpy(d_b, h_b, size, cudaMemcpyHostToDevice);
-    checkError(error, "copy B from host to device");
-    cudaMemcpy(d_c, h_c, size, cudaMemcpyHostToDevice);
-    checkError(error, "copy C from host to device");
-    
-    addArrays<<< 1, MATRIX_DIM >>>(d_a, d_b, d_c, MATRIX_DIM);
-    
-    cudaMemcpy(h_c, d_c, size, cudaMemcpyDeviceToHost);
-    checkError(error, "copy C from device to host");
+    thrust::device_vector<double> d_a = h_a;
+    thrust::device_vector<double> d_b = h_b;
+    thrust::device_vector<double> d_c = h_c;
+    thrust::transform(d_a.begin(), d_a.end(),
+                      d_b.begin(), d_c.begin(),
+                      thrust::multiplies<double>());
+    thrust::copy(d_c.begin(), d_c.end(), h_c.begin());
     
     for (int i = 0; i < MATRIX_DIM; i++)
-        printf("%.2f + %.2f = %.2f \n", *(h_a + i), *(h_b + i), *(h_c + i));
-    
-    free(h_a);
-    free(h_b);
-    free(h_c);
-    
-    cudaFree(d_a);
-    cudaFree(d_b);
-    cudaFree(d_c);
-    
+        printf("%.2f + %.2f = %.2f \n", h_a[i], h_b[i], h_c[i]);
     return 0;
 }
