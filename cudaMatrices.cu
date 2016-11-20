@@ -1,5 +1,7 @@
-#include <cuda.h>
-#include <cuda_runtime.h
+#include <thrust/host_vector>
+#include <thrust/device_vector>
+#include <thrust/generate>
+#include <thrust/copy>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -33,13 +35,22 @@ __host__ void checkError(cudaError_t error, const char *point){
 }
 
 
+__host__ static __inline__ double rand_01()
+{
+    return (10.0*rand()/(RAND_MAX+1.0));
+}
+
+
 int main(){
     
     cudaError_t error = cudaSuccess;
     size_t size = MATRIX_DIM * sizeof(double);
-    double *h_a = createArrayWithRandoms();
-    double *h_b = createArrayWithRandoms();
-    double *h_c = (double *) malloc(MATRIX_DIM * sizeof(double));
+    //double *h_a = createArrayWithRandoms();
+    thrust::host_vector<double> h_a(MATRIX_DIM);
+    //double *h_b = createArrayWithRandoms();
+    thrust::host_vector<double> h_b(MATRIX_DIM);
+    //double *h_c = (double *) malloc(MATRIX_DIM * sizeof(double));
+    thrust::host_vector<double> h_c(MATRIX_DIM);
     double *d_a , *d_b, *d_c;
     
     error = cudaMalloc(&d_a, size);
