@@ -1,2 +1,3 @@
 *.out
 *.kmodoproject
+vector_add_sample.cu
