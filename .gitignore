@@ -1,1 +1,3 @@
 *.out
+*.komodoproject
+vector_add_sample.cu
