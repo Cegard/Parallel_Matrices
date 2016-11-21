@@ -10,6 +10,27 @@
 #define MATRIX_DIM 4
 
 
+__device__
+void get_cell (thrust::device_vector<double> A,
+               thrust::device_vector<double> B,
+               thrust::device_vector<double> C,
+               int index_A, int index_B. int index_C){
+    C[index_C] = A[index_A] * B[index_B];
+}
+
+
+__global__
+void multiply_matrices(thrust::device_vector<double> A,
+                       thrust::device_vector<double> B, int length){
+    int i = blockDim.x * blockIdx.x + threadIdx.x;
+    
+    if (i < length){
+        
+    }
+    
+}
+
+
 int main(){
     thrust::host_vector<double> h_a(MATRIX_DIM * MATRIX_DIM),
                                 h_b(MATRIX_DIM * MATRIX_DIM),
@@ -18,7 +39,7 @@ int main(){
     thrust::device_vector<double> d_b = h_b;
     thrust::device_vector<double> d_c = h_c;
     
-    /* Vectors  initiallisation*/
+    /* vectors  initiallisation */
     for (int i = 0; i < MATRIX_DIM; i++){
         
         for (int j = 0; j < MATRIX_DIM; j++){
@@ -28,7 +49,8 @@ int main(){
             d_b[j * MATRIX_DIM + i] = h_b[i * MATRIX_DIM + j];
         }
     }
-    
+
+    /* matrices multiplication 
     for (int i = 0; i < MATRIX_DIM; i ++){
         
         for (int j = 0; j < MATRIX_DIM; j++){
@@ -42,16 +64,13 @@ int main(){
                                                      thrust::plus<double>());
         }
     }
-    
-    thrust::copy(d_c.begin(), d_c.end(), h_c.begin());
+    */
     
     for (int i = 0; i < MATRIX_DIM; i++){
         
-        for(int j = 0; j < MATRIX_DIM; j++)
-            printf("%.2f ", h_c[i * MATRIX_DIM + j]);
-        
-        printf("\n");
     }
+    
+    thrust::copy(d_c.begin(), d_c.end(), h_c.begin());
     
     return 0;
 }
