@@ -1,5 +1,5 @@
 #include <cuda.h>
-#include <cuda_runtime.h
+#include <cuda_runtime.h>
 #include <stdlib.h>
 #include <stdio.h>
 
