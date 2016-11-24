@@ -125,7 +125,7 @@ void constantInit(float *data, int size, float val)
 /**
  * Run a simple test of matrix multiplication using CUDA
  */
-int matrixMultiply(int block_size, dim3 &dimsA, dim3 &dimsB)
+int matrixMultiply(int block_size, int threadsPerBlock, dim3 &dimsA, dim3 &dimsB)
 {
     // Allocate host memory for matrices A and B
     unsigned int size_A = dimsA.x * dimsA.y;
@@ -198,7 +198,7 @@ int matrixMultiply(int block_size, dim3 &dimsA, dim3 &dimsB)
     }
 
     // Setup execution parameters
-    dim3 threads(block_size, block_size);
+    dim3 threads(block_size, threadsPerBlock);
     dim3 grid(dimsB.x / threads.x, dimsA.y / threads.y);
 
     // Create and start timer
@@ -388,8 +388,9 @@ int main(int argc, const char** argv)
     }
 
     // Use a larger block size for Fermi and above
-    int block_size = (deviceProp.major < 2) ? 16 : 32;
-
+    int block_size = atoi(*(argv + 2));//(deviceProp.major < 2) ? 16 : 32;
+    int threads = atoi(*(argv + 3));
+    
     dim3 dimsA(5*2*block_size, 5*2*block_size, 1);
     dim3 dimsB(5*4*block_size, 5*2*block_size, 1);
     
@@ -401,7 +402,7 @@ int main(int argc, const char** argv)
 
     printf("MatrixA(%d,%d), MatrixB(%d,%d)\n", dimsA.x, dimsA.y, dimsB.x, dimsB.y);
 
-    int matrix_result = matrixMultiply(block_size, dimsA, dimsB);
+    int matrix_result = matrixMultiply(block_size, threads, dimsA, dimsB);
 
     exit(matrix_result);
 }
