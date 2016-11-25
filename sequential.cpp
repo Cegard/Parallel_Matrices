@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctime>
+#include <sys/time.h>
 
 using namespace std; 
 
@@ -55,8 +55,8 @@ double ** createRandomMatrix(int dim){
 }
 
 
-double** multiplyMatrix(double **matrixA, double **matrixB, int dim){
-    double **matrixC = createMatrixWithZeroes(dim);
+double** multiplyMatrix(double **matrixA, double **matrixB, double **matrixC, int dim){
+    double **answer = matrixC;
     
     for (int i = 0; i < dim*dim; i++){
 		double cell = 0.0;
@@ -69,31 +69,42 @@ double** multiplyMatrix(double **matrixA, double **matrixB, int dim){
 		*(*(matrixC + row) + col) = cell;
     }
     
-    return matrixC;
+    return answer;
 }
 
 
-int main(int argc, const char** argv){
-	int dim =  atoi(*(argv + 1));
-    double **matrixA = createRandomMatrix(dim);
-    double **matrixB = createRandomMatrix(dim);
-    std::clock_t tic;
-    tic = std::clock();
-	double **matrixC = multiplyMatrix(matrixA, matrixB, dim);
-    double seconds = (double) (std::clock() - tic) / 1000000.0;
-	/*
+int main(){ //int argc, const char** argv){
+	int dim = 32; // atoi(*(argv + 1));
 	printf("\n");
-    printf("matrix a\n");
-    printMatrix(matrixA);
-    printf("matrix b\n");
-    printMatrix(matrixB);
-	printf("matrix c\n");
-	printMatrix(matrixC);
-	*/
-    printf("Taken time for a %dX%d matrix: %.5f\n",dim, dim, seconds);
-    freeMatrix(&matrixA, dim);
-    freeMatrix(&matrixB, dim);
-	freeMatrix(&matrixC, dim);
+	
+	while (dim <= 1024){
+		double **matrixA = createRandomMatrix(dim);
+		double **matrixB = createRandomMatrix(dim);
+		double **matrixC = createMatrixWithZeroes(dim);
+		struct timeval start_time;
+		struct timeval end_time;
+		gettimeofday(&start_time, NULL);
+		matrixC = multiplyMatrix(matrixA, matrixB, matrixC, dim);
+		gettimeofday(&end_time, NULL);
+		double seconds = (((1000.0*end_time.tv_sec) + (end_time.tv_usec/1000.0)) -
+						 ((1000.0*start_time.tv_sec) + (start_time.tv_usec/1000.0)))/1000.0;
+		
+		//printf("\n");
+		//printf("matrix a\n");
+		//printMatrix(matrixA);
+		//printf("matrix b\n");
+		//printMatrix(matrixB);
+		//printf("matrix c\n");
+		//printMatrix(matrixC);
+		
+		printf("Taken time for a %dX%d matrix: %.5f\n",dim, dim, seconds);
+		freeMatrix(&matrixA, dim);
+		freeMatrix(&matrixB, dim);
+		freeMatrix(&matrixC, dim);
+		dim *= 2;
+	}
+	
+	printf("\n");
     
 	return 0;
 }
