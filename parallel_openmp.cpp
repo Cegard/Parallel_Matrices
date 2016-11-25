@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 #include <omp.h>
-#include <ctime>
 
-#define PAD 64*8
+#define PAD 64
 
 using namespace std; 
 
@@ -63,7 +63,6 @@ double** multiplyMatrix(double **matrixA, double **matrixB, int dim, int threads
     
 	#pragma omp parallel num_threads(threads)
     {
-        #pragma omp parallel for
         for (int i = 0; i < dim*dim; i++){
             double cell = 0.0;
             int row = i/dim;
@@ -81,28 +80,43 @@ double** multiplyMatrix(double **matrixA, double **matrixB, int dim, int threads
 }
 
 
-int main(int argc, const char** argv){
-	int dim =  atoi(*(argv + 1));
-    int threads = atoi(*(argv + 2));
-    double **matrixA = createRandomMatrix(dim);
-    double **matrixB = createRandomMatrix(dim);
-    std::clock_t tic;
-    tic = std::clock();
-	double **matrixC = multiplyMatrix(matrixA, matrixB, dim, threads);
-    double seconds = (double) (std::clock() - tic) / 1000000.0;
-    /*
-	printf("\n");
-    printf("matrix a\n");
-    printMatrix(matrixA, dim);
-    printf("matrix b\n");
-    printMatrix(matrixB, dim);
-	printf("matrix c\n");
-	printMatrix(matrixC, dim);
-	*/
-    printf("taken time for a matrix of %dX%d with %d threads: %.5f s\n", dim, dim, threads, seconds);
-    freeMatrix(&matrixA, dim);
-    freeMatrix(&matrixB, dim);
-	freeMatrix(&matrixC, dim);
+int main(){
+    int dim = 64;
+    int threads = 1;
+    printf("\n---------------------------------------------\n");
     
+    while (dim <= 1024){
+        double **matrixA = createRandomMatrix(dim);
+        double **matrixB = createRandomMatrix(dim);
+        struct timeval start_time;
+        struct timeval end_time;
+        gettimeofday(&start_time, NULL);
+        double **matrixC = multiplyMatrix(matrixA, matrixB, dim, threads);
+        gettimeofday(&end_time, NULL);
+        double seconds = (((1000.0*end_time.tv_sec) + (end_time.tv_usec/1000.0)) -
+                         ((1000.0*start_time.tv_sec) + (start_time.tv_usec/1000.0)))/1000.0;
+        //printf("\n");
+        //printf("matrix a\n");
+        //printMatrix(matrixA, dim);
+        //printf("matrix b\n");
+        //printMatrix(matrixB, dim);
+        //printf("matrix c\n");
+        //printMatrix(matrixC, dim);
+        
+        printf("Taken time for a matrix of %dX%d with %d threads: %.5fs\n", dim, dim, threads, seconds);
+        freeMatrix(&matrixA, dim);
+        freeMatrix(&matrixB, dim);
+        freeMatrix(&matrixC, dim);
+        
+        threads *= 2;
+        
+        if (threads > 32){
+            printf("---------------------------------------------\n\n");
+            printf("---------------------------------------------\n");
+            threads = 1;
+            dim *= 2;
+        }
+        
+    }
 	return 0;
 }
