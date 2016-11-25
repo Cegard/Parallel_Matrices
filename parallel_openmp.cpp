@@ -3,7 +3,7 @@
 #include <sys/time.h>
 #include <omp.h>
 
-#define PAD 64
+#define PAD 2*sizeof(double)
 
 using namespace std; 
 
@@ -58,11 +58,12 @@ double ** createRandomMatrix(int dim){
 }
 
 
-double** multiplyMatrix(double **matrixA, double **matrixB, int dim, int threads){
-    double **matrixC = createMatrixWithZeroes(dim);
+double** multiplyMatrix(double **matrixA, double **matrixB, double **matrixC, int dim, int threads){
+    double **answer = matrixC;
     
 	#pragma omp parallel num_threads(threads)
     {
+        //#pragma omp parallel for
         for (int i = 0; i < dim*dim; i++){
             double cell = 0.0;
             int row = i/dim;
@@ -72,11 +73,11 @@ double** multiplyMatrix(double **matrixA, double **matrixB, int dim, int threads
             for (int j = 0; j < dim; j++)
                 cell += *(*(matrixA + row) + j) * *(*(matrixB + j) + col);
             
-            *(*(matrixC + row) + col) = cell;
+            *(*(answer + row) + col) = cell;
         }
     }
     
-    return matrixC;
+    return answer;
 }
 
 
@@ -88,10 +89,11 @@ int main(){
     while (dim <= 1024){
         double **matrixA = createRandomMatrix(dim);
         double **matrixB = createRandomMatrix(dim);
+        double **matrixC = createMatrixWithZeroes(dim);
         struct timeval start_time;
         struct timeval end_time;
         gettimeofday(&start_time, NULL);
-        double **matrixC = multiplyMatrix(matrixA, matrixB, dim, threads);
+        matrixC = multiplyMatrix(matrixA, matrixB, matrixC, dim, threads);
         gettimeofday(&end_time, NULL);
         double seconds = (((1000.0*end_time.tv_sec) + (end_time.tv_usec/1000.0)) -
                          ((1000.0*start_time.tv_sec) + (start_time.tv_usec/1000.0)))/1000.0;
