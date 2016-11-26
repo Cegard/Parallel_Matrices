@@ -63,17 +63,17 @@ double** multiplyMatrix(double **matrixA, double **matrixB, double **matrixC, in
     
 	#pragma omp parallel num_threads(threads)
     {
-        //#pragma omp parallel for
-        for (int i = 0; i < dim*dim; i++){
+        #pragma omp parallel for schedule(dynamic)
+        for (int i = 0; i < dim; i++){
             double cell = 0.0;
-            int row = i/dim;
-            int col = i%dim;
             
-            //#pragma omp parallel for reduction (+:cell)
-            for (int j = 0; j < dim; j++)
-                cell += *(*(matrixA + row) + j) * *(*(matrixB + j) + col);
-            
-            *(*(answer + row) + col) = cell;
+            for (int j = 0; j < dim; j++){
+                
+                for (int n = 0; n < dim; n++)
+                    cell += *(*(matrixA + i) + j) * *(*(matrixB + j) + n);
+                
+                *(*(answer + i) + j) = cell;
+            }
         }
     }
     
