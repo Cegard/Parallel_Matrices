@@ -46,20 +46,21 @@ double* multiplyMatrix(double *matrixA, double *matrixB, double *matrixC, int di
     
     #pragma omp parallel num_threads(threads)
     {
-        int dim_2 = dim * dim;
-        int limit = dim_2 * dim;
-        int tileIndex, row_row, row_col, col_row, col_col, rowIndex, colIndex;
+        double cell;
+        int row;
+        int col;
         
         #pragma omp parallel for schedule(dynamic)
-        for (int i = 0; i < limit; i++){
-            tileIndex = i / dim;
-            row_row = i / dim_2;
-            row_col = i % dim;
-            rowIndex = row_row * dim + row_col;
-            col_row = row_col;
-            col_col = tileIndex % dim;
-            colIndex = col_row * dim + col_col;
-            *(answer + tileIndex) += *(matrixA + rowIndex) * *(matrixB + colIndex);
+        for (int i = 0; i < dim*dim; i++){
+            cell = 0.0;
+            row = i/dim;
+            col = i%dim;
+            
+            for (int j = 0; j < dim; j++){
+                cell += *(matrixA + (row * dim + j)) * *(matrixB + (j * dim + col));
+            }
+            
+            *(answer + i) = cell;
         }
     }
     
