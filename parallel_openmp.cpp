@@ -51,16 +51,16 @@ double* multiplyMatrix(double *matrixA, double *matrixB, double *matrixC, int di
         int col;
         
         #pragma omp parallel for schedule(dynamic)
-        for (int i = 0; i < dim*dim; i++){
+        for (int i = 0; i < dim; i++){
             cell = 0.0;
-            row = i/dim;
-            col = i%dim;
             
             for (int j = 0; j < dim; j++){
-                cell += *(matrixA + (row * dim + j)) * *(matrixB + (j * dim + col));
+                
+                for (int n = 0; n < dim; n++)
+                    cell += *(matrixA + (i * dim + n)) * *(matrixB + (j * dim + n));
+                
+                *(answer + (i * dim + j)) = cell;
             }
-            
-            *(answer + i) = cell;
         }
     }
     
