@@ -82,7 +82,7 @@ double** multiplyMatrix(double **matrixA, double **matrixB, double **matrixC, in
 
 
 int main(){
-    int dim = 64;
+    int dim = 32;
     int threads = 1;
     printf("\n---------------------------------------------\n");
     
@@ -112,7 +112,7 @@ int main(){
         
         threads *= 2;
         
-        if (threads > 32){
+        if (threads > 64){
             printf("---------------------------------------------\n\n");
             printf("---------------------------------------------\n");
             threads = 1;
