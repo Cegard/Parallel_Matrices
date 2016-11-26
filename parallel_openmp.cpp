@@ -8,17 +8,22 @@
 using namespace std; 
 
 
-double** createMatrixWithZeroes(int dim){
+double** createMatrix(int dim, bool zeroes){
     double **matrix = (double**) malloc(dim * sizeof(double*) * PAD);
     
     for (int i = 0; i < dim; i++){
         *(matrix + i) = (double*) malloc(dim * sizeof(double) + PAD);
         
         for (int j = 0; j < dim; j++)
-            *(*(matrix + i) + j) = 0.0;
+            *(*(matrix + i) + j) = (zeroes)? 0.0 : (10.0*rand()/(RAND_MAX+1.0));
     }
     
     return matrix;
+}
+
+
+double** createMatrixWithZeroes(int dim){
+    return createMatrix(dim, 1);
 }
 
 
@@ -35,26 +40,17 @@ int printMatrix(double **matrix, int dim){
 }
 
 
+double ** createRandomMatrix(int dim){
+    return createMatrix(dim, 0);
+}
+
+
 void freeMatrix(double ***matrix, int dim){
     
     for (int i = 0; i < dim; i++)
         free(*(*matrix + i));
     
     free(*matrix);
-}
-
-
-double ** createRandomMatrix(int dim){
-    double **matrix = (double**) malloc(dim * sizeof(double*) * PAD);
-    
-    for (int i = 0; i < dim; i++){
-        *(matrix + i) = (double*) malloc(dim * sizeof(double) + PAD);
-        
-        for (int j = 0; j < dim; j++)
-            *(*(matrix + i) + j) = (10.0*rand()/(RAND_MAX+1.0));
-    }
-    
-    return matrix;
 }
 
 
@@ -70,7 +66,7 @@ double** multiplyMatrix(double **matrixA, double **matrixB, double **matrixC, in
             for (int j = 0; j < dim; j++){
                 
                 for (int n = 0; n < dim; n++)
-                    cell += *(*(matrixA + i) + j) * *(*(matrixB + j) + n);
+                    cell += *(*(matrixA + i) + n) * *(*(matrixB + j) + n);
                 
                 *(*(answer + i) + j) = cell;
             }
