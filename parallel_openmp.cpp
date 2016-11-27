@@ -43,22 +43,15 @@ int printMatrix(double *matrix, int dim){
 
 double* multiplyMatrix(double *matrixA, double *matrixB, double *matrixC, int dim, int threads){
     double *answer = matrixC;
+    int chunk = (dim/threads) + 1;
     
     #pragma omp parallel num_threads(threads)
-    {
-        double cell;
+    for (int i = 0; i < dim; i++){
         
-        #pragma omp parallel for schedule(dynamic)
-        for (int i = 0; i < dim; i++){
+        for (int j = 0; j < dim; j++){
             
-            for (int j = 0; j < dim; j++){
-                cell = 0.0;
-                
-                for (int n = 0; n < dim; n++)
-                    cell += *(matrixA + (i * dim + n)) * *(matrixB + (j * dim + n));
-                
-                *(answer + (i * dim + j)) = cell;
-            }
+            for (int n = 0; n < dim; n++)
+                *(answer + (i * dim + j)) += *(matrixA + (i * dim + n)) * *(matrixB + (j * dim + n));
         }
     }
     
@@ -67,8 +60,8 @@ double* multiplyMatrix(double *matrixA, double *matrixB, double *matrixC, int di
 
 
 int main(){
-    int dim =  64;
-    int threads = 2;
+    int dim =  32;
+    int threads = 1;
     printf("\n---------------------------------------------\n");
     
     while (dim <= 1024){
@@ -95,10 +88,10 @@ int main(){
         free(matrixC);
         threads *= 2;
         
-        if (threads > 32){
+        if (threads > 64){
             printf("---------------------------------------------\n\n");
             printf("---------------------------------------------\n");
-            threads = 2;
+            threads = 1;
             dim *= 2;
         }
     }
