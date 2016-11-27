@@ -82,7 +82,7 @@ int main(){
     int threads = 1;
     printf("\n---------------------------------------------\n");
     
-    while (dim <= 1024){
+    while (dim <= 2048){
         double **matrixA = createRandomMatrix(dim);
         double **matrixB = createRandomMatrix(dim);
         double **matrixC = createMatrixWithZeroes(dim);
