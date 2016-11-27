@@ -61,9 +61,9 @@ double** multiplyMatrix(double **matrixA, double **matrixB, double **matrixC, in
     {
         #pragma omp parallel for schedule(dynamic)
         for (int i = 0; i < dim; i++){
-            double cell = 0.0;
             
             for (int j = 0; j < dim; j++){
+                double cell = 0.0;
                 
                 for (int n = 0; n < dim; n++)
                     cell += *(*(matrixA + i) + n) * *(*(matrixB + j) + n);
