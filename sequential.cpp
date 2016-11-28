@@ -81,15 +81,15 @@ int main(int argc, const char** argv){
     tic = std::clock();
 	double **matrixC = multiplyMatrix(matrixA, matrixB, dim);
     double seconds = (double) (std::clock() - tic) / 1000000.0;
-	/*
+	
 	printf("\n");
     printf("matrix a\n");
-    printMatrix(matrixA);
+    printMatrix(matrixA, dim);
     printf("matrix b\n");
-    printMatrix(matrixB);
+    printMatrix(matrixB, dim);
 	printf("matrix c\n");
-	printMatrix(matrixC);
-	*/
+	printMatrix(matrixC, dim);
+	
     printf("Taken time for a %dX%d matrix: %.5f\n",dim, dim, seconds);
     freeMatrix(&matrixA, dim);
     freeMatrix(&matrixB, dim);

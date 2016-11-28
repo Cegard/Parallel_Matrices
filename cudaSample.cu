@@ -25,6 +25,10 @@
  * Piscataway, NJ: IEEE Press, 2008, pp. Art. 31:1-11.
  */
 
+
+//This software
+//contains source code provided by NVIDIA Corporation.
+
 // System includes
 #include <stdio.h>
 #include <assert.h>
